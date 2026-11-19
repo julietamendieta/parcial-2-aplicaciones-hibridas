@@ -1,6 +1,8 @@
 import Appointment from "../models/AppointmentModel.js";
 import Employee from "../models/EmployeeModel.js";
 import Client from "../models/ClientModel.js";
+import Location from "../models/LocationModel.js";
+import Service from "../models/ServiceModel.js";
 
 class AppointmentController{
     async getAll(req, res){

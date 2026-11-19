@@ -18,6 +18,16 @@ const AppointmentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'employee',
         required: true
+    },
+    location: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'location',
+        required: true
+    },
+    service: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'service',
+        required: true
     }
 });
 
