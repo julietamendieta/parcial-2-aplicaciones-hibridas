@@ -13,6 +13,14 @@ const EmployeeSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    password:{
+        type: String,
+        required: true
+    },
+    profileImage: {
+        type: String,
+        default: null
+    },
     active: {
         type: Boolean,
         default: true

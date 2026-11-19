@@ -10,9 +10,9 @@ class AuthController{
     
     async register(req, res){
         try{
-            const {name, email, password} = req.body;
+            const {name, email, password, tel} = req.body;
 
-            if(!name || !email || !password){
+            if(!name || !email || !password || !tel){
                 return res.status(403).json({ message: 'Faltan parámetros obligatorios.'})
             }
 
@@ -31,7 +31,8 @@ class AuthController{
             const data = {
                 id: newClient._id,
                 name: newClient.name,
-                email: newClient.email
+                email: newClient.email,
+                tel: newClient.tel
             }
 
             res.status(201).json({

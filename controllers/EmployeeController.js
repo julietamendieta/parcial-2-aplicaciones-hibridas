@@ -72,17 +72,32 @@ class EmployeeController{
     async create(req, res){
         try{
             const {body} = req;
-            const {name, email, tel, role} = body;
-            
-            if( !name || !email || !tel){
+            const {name, email, password, tel, role} = body;
+
+            if( !name || !email || !password || !tel){
                 return res.status(403).send("Complete todos los campos obligatorios.")
             }
-            const employee = await Employee.create({name, email, tel, role});
-            res.status(201).json({
-                message: 'success',
-                data: employee
-            })
 
+            const existingEmployee = await Employee.findOne({ email });
+            if (existingEmployee) {
+                return res.status(409).json({
+                    message: 'Ya existe un empleado registrado con ese correo electrónico.'
+                });
+            }
+
+            const passwordHash = await bcrypt.hash(password, 10);
+            const newEmployee = await Employee.create({
+                name,
+                email,
+                password: passwordHash,
+                tel,
+                role
+            })
+            newEmployee.save();
+            const id = newEmployee._id;
+            res.json({
+                message: `Empleado registrado con el ID: ${id}`
+            })
         }catch(error){
             res.status(500).json({
                 message: 'Error al crear el empleado.'
@@ -93,20 +108,18 @@ class EmployeeController{
     async update(req, res){
         try{
             const id = req.params.id;
-            const {name, email, tel, role} = req.body;
+            const {name, email, password, tel, role} = req.body;
             
-            if( !name || !email || !tel){
+            if( !name || !email || !password || !tel){
                 return response.status(403).send("Complete todos los campos obligatorios.")
             }
 
             const data = {
                 name, email, tel, role
             }
-            if(role){
-                data.role = role;
+            if(password){
+                data.password = await bcrypt.hash(password, 10);
             }
-
-
 
             const employee = await Employee.findByIdAndUpdate(id, data, {new: true, runValidators: true});
 
@@ -114,7 +127,6 @@ class EmployeeController{
                 message: 'success',
                 data: employee
             })
-
         }catch(error){
             res.status(500).json({
                 message: 'Error al actualizar los datos del empleado.'
@@ -139,6 +151,29 @@ class EmployeeController{
         }catch(error){
             res.status(500).json({
                 message: 'Error al eliminar el empleado.'
+            })
+        }
+    }
+
+    async uploadImage(req, res){
+        try{
+            if(!req.file){
+                return res.status(400).json({
+                    message: "No se envió el archivo."
+                })
+            }
+            const imagePath = `/uploads/profiles/${req.file.filename}`
+            const eid = req.employee.id
+            const employee = await Employee.findByIdAndUpdate(eid, {profileImage: imagePath}, {new: true}).select('-password')
+    
+
+            res.status(200).json({
+                message: 'Imagen actualizada',
+                data: employee
+            })
+        }catch{
+            res.status(500).json({
+                message: 'Error al cargar imagen.'
             })
         }
     }
