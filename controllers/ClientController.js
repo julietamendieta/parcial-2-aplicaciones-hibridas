@@ -77,8 +77,16 @@ class ClientController{
             if( !name || !email || !password || !tel){
                 return res.status(403).send("Complete todos los campos obligatorios.")
             }
+
+            const existingClient = await Client.findOne({ email });
+            if (existingClient) {
+                return res.status(409).json({
+                    message: 'Ya existe un cliente registrado con ese correo electrónico.'
+                });
+            }
+
             const passwordHash = await bcrypt.hash(password, 10);
-            const newClient = new Client({
+            const newClient = await Client.create({
                 name,
                 email,
                 password: passwordHash,
@@ -86,7 +94,9 @@ class ClientController{
             })
             newClient.save();
             const id = newClient._id;
-            res.send(`Cliente registrado con el ID: ${id}`)
+            res.json({
+                message: `Cliente registrado con el ID: ${id}`
+            })
         }catch(error){
             res.status(500).json({
                 message: 'Error al crear el cliente.'
@@ -103,8 +113,14 @@ class ClientController{
                 return response.status(403).send("Complete todos los campos obligatorios.")
             }
 
-            const passwordHash = await bcrypt.hash(password, 10);
-            const client = await Client.findByIdAndUpdate(id, {name, email, password: passwordHash, tel}, {new: true, runValidators: true});
+            const data = {
+                name, email, tel
+            }
+            if(password){
+                data.password = await bcrypt.hash(password, 10);
+            }
+
+            const client = await Client.findByIdAndUpdate(id, data, {new: true, runValidators: true});
 
             res.json({
                 message: 'success',

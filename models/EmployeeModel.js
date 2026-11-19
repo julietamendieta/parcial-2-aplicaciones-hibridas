@@ -16,6 +16,11 @@ const EmployeeSchema = new mongoose.Schema({
     active: {
         type: Boolean,
         default: true
+    },
+    role:{
+        type: String,
+        enum: ['employee', 'manager', 'admin'],
+        default: 'employee'
     }
 });
 

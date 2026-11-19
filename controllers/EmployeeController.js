@@ -72,12 +72,12 @@ class EmployeeController{
     async create(req, res){
         try{
             const {body} = req;
-            const {name, email, tel} = body;
+            const {name, email, tel, role} = body;
             
             if( !name || !email || !tel){
                 return res.status(403).send("Complete todos los campos obligatorios.")
             }
-            const employee = await Employee.create({name, email, tel});
+            const employee = await Employee.create({name, email, tel, role});
             res.status(201).json({
                 message: 'success',
                 data: employee
@@ -93,12 +93,22 @@ class EmployeeController{
     async update(req, res){
         try{
             const id = req.params.id;
-            const {name, email, tel} = req.body;
+            const {name, email, tel, role} = req.body;
             
             if( !name || !email || !tel){
                 return response.status(403).send("Complete todos los campos obligatorios.")
             }
-            const employee = await Employee.findByIdAndUpdate(id, {name, email, tel}, {new: true, runValidators: true});
+
+            const data = {
+                name, email, tel, role
+            }
+            if(role){
+                data.role = role;
+            }
+
+
+
+            const employee = await Employee.findByIdAndUpdate(id, data, {new: true, runValidators: true});
 
             res.json({
                 message: 'success',
